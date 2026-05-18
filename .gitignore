@@ -20,6 +20,6 @@ venv/
 hsv_config.json
 
 # Debug/temp
-test_detection.jpg
-debug_*.jpg
-test_capture.jpg
+*.jpg
+*.png
+!assets/

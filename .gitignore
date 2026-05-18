@@ -1,0 +1,25 @@
+# Pesi modello (troppo grandi)
+weights/
+runs/
+*.pt
+*.onnx
+
+# Dataset (immagini/video)
+datasets/
+*.mp4
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Config locale con dati sensibili
+hsv_config.json
+
+# Debug/temp
+test_detection.jpg
+debug_*.jpg
+test_capture.jpg

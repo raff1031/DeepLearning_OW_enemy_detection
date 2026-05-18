@@ -1,0 +1,7 @@
+names:
+  0: enemy
+nc: 1
+path: C:\Users\sas\Desktop\DeepLearning\ow-detector\datasets
+test: images/test
+train: images/train
+val: images/val

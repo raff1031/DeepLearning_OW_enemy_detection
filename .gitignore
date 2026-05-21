@@ -18,6 +18,7 @@ venv/
 
 # Config locale con dati sensibili
 hsv_config.json
+ally_hsv_config.json
 
 # Debug/temp
 *.jpg

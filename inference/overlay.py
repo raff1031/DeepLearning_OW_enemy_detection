@@ -96,24 +96,24 @@ class ESPWidget(QWidget):
     def _nearest_enemy(self) -> Optional[Tuple[float, float, float]]:
         """
         Restituisce (smooth_x, smooth_y, distanza_raw) del nemico più vicino.
+        Considera solo label='enemy' — gli alleati vengono ignorati dall'aim indicator.
         Applica isteresi per non saltare tra target e EMA per smoothing posizione.
         """
-        if not self._detections:
+        enemies = [det for det in self._detections if det.label == "enemy"]
+        if not enemies:
             self._aim_initialized = False
             self._aim_locked_id = -1
             return None
 
         cx, cy = self._screen_cx, self._screen_cy
 
-        # Calcola raw target per ogni detection
         targets = []
-        for i, det in enumerate(self._detections):
+        for i, det in enumerate(enemies):
             tx = (det.x1 + det.x2) / 2
             ty = det.y1 + (det.y2 - det.y1) * AIM_HEAD_RATIO
             dist = math.hypot(tx - cx, ty - cy)
             targets.append((i, tx, ty, dist))
 
-        # Isteresi: mantieni il target corrente a meno che un altro sia più vicino di AIM_SWITCH_MARGIN
         locked_idx = self._aim_locked_id
         locked_valid = 0 <= locked_idx < len(targets)
 
@@ -121,16 +121,13 @@ class ESPWidget(QWidget):
             locked_dist = targets[locked_idx][3]
             best_idx = min(range(len(targets)), key=lambda i: targets[i][3])
             best_dist = targets[best_idx][3]
-            # Cambia solo se il nuovo è significativamente più vicino
             if best_dist < locked_dist - AIM_SWITCH_MARGIN:
                 self._aim_locked_id = best_idx
         else:
-            # Nessun target corrente: scegli il più vicino
             self._aim_locked_id = min(range(len(targets)), key=lambda i: targets[i][3])
 
         _, tx, ty, dist = targets[self._aim_locked_id]
 
-        # EMA smoothing sulla posizione
         if not self._aim_initialized:
             self._aim_smooth_x = tx
             self._aim_smooth_y = ty
@@ -198,7 +195,8 @@ class ESPWidget(QWidget):
         font = QFont("Consolas", LABEL_FONT_SIZE, QFont.Bold)
         p.setFont(font)
 
-        txt = f"{det.label.upper()}  {det.confidence * 100:.0f}%"
+        id_str = f" #{det.track_id}" if det.track_id >= 0 else ""
+        txt = f"{det.label.upper()}{id_str}  {det.confidence * 100:.0f}%"
 
         # Sfondo etichetta
         fm    = p.fontMetrics()
